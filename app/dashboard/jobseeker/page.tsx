@@ -33,11 +33,9 @@ export default function JobseekerDashboard() {
     if (!skills) {
       alert('يرجى إدخال بعض المهارات أولاً');
       return;
-    }
-    // محاكاة المساعد الذكي لإعداد الملخص الشخصي
-    وتمتلك خبرة في (${experience || 'المجال الإداري والتنفيذي'}). تتميز بمهارا...
-    setGeneratedBio(bio);
-  };
+// محاكاة المساعد الذكي لإعداد الملخص الشخصي
+const bio = `وتمتلك خبرة في (${experience || 'المجال الإداري والتنفيذي'}). تتميز بمهارات عالية...`;
+setGeneratedBio(bio);  };
 
   const handleApply = async (jobId: string) => {
     try {

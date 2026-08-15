@@ -209,17 +209,13 @@ export default function JobseekerDashboard() {
             </div>
           ) : (
             <div className="space-y-4">
-
               {jobs.map((job) => (
                 <div
                   key={job.id}
                   className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between"
                 >
-
                   <div>
-
                     <div className="flex justify-between items-start mb-2">
-
                       <h3 className="font-bold text-slate-900 text-base">
                         {job.title}
                       </h3>
@@ -231,41 +227,26 @@ export default function JobseekerDashboard() {
                           ? 'هجين'
                           : 'ميداني'}
                       </span>
-
                     </div>
 
-                    <p className="text-xs text-slate-600 mb-3">
+                    <p className="text-xs text-slate-600 mb-4">
                       {job.city} • {job.description}
                     </p>
-
                   </div>
 
                   <button
                     onClick={() => handleApply(job.id)}
-                    className="self-end bg-slate-900 hover:bg-teal-600 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition-all"
+                    className="self-end bg-slate-900 hover:bg-teal-600 text-white text-xs font-medium py-2 px-4 rounded-lg transition-colors"
                   >
                     التقديم المباشر
                   </button>
-
                 </div>
               ))}
-
             </div>
           )}
-
         </div>
 
       </main>
     </div>
   );
-const handleGenerateBio = () => {
-   ...
-};
-
-const handleApply = async (jobId: string) => {
-   ...
-};
-
-return (
-   ...
-);
+}

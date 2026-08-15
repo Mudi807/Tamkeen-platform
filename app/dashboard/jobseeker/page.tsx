@@ -1,252 +1,84 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabaseClient';
 
-export default function JobseekerDashboard() {
-  const [jobs, setJobs] = useState<any[]>([]);
-  const [loadingJobs, setLoadingJobs] = useState(true);
-
-  // AI Assistant States
-  const [skills, setSkills] = useState('');
-  const [experience, setExperience] = useState('');
-  const [generatedBio, setGeneratedBio] = useState('');
-
-  useEffect(() => {
-    fetchJobs();
-  }, []);
-
-  const fetchJobs = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('jobs')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      setJobs(data || []);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoadingJobs(false);
-    }
-  };
-
-  const handleGenerateBio = () => {
-    if (!skills.trim()) {
-      alert('يرجى إدخال بعض المهارات أولاً');
-      return;
-    }
-
-    // محاكاة المساعد الذكي لإعداد الملخص الشخصي
-    const bio = `أمتلك مهارات في ${skills}، ولدي خبرة في ${
-      experience || 'المجال الإداري والتنفيذي'
-    }. أتميز بمهارات عالية في التواصل والتنظيم والعمل ضمن فريق، وأسعى إلى تطوير مهاراتي والمساهمة بفعالية في بيئة العمل.`;
-
-    setGeneratedBio(bio);
-  };
-
-  const handleApply = async (jobId: string) => {
-    try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        alert('يرجى تسجيل الدخول مجدداً');
-        return;
-      }
-
-      const { error } = await supabase.from('applications').insert([
-        {
-          job_id: jobId,
-          jobseeker_id: user.id,
-        },
-      ]);
-
-      if (error) {
-        if (error.code === '23505') {
-          alert('لقد تقدمتِ لهذه الوظيفة سابقاً!');
-        } else {
-          throw error;
-        }
-      } else {
-        alert('تم تقديم طلبكِ بنجاح!');
-      }
-    } catch (err: any) {
-      console.error(err);
-      alert(err.message || 'حدث خطأ أثناء التقديم');
-    }
-  };
-
+export default function Home() {
   return (
-    <div
-      dir="rtl"
-      className="min-h-screen bg-slate-50 font-sans text-slate-800"
-    >
-      <header className="bg-white border-b border-slate-100 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link
-            href="/"
-            className="font-bold text-teal-700 text-lg"
-          >
-            منصة تمكين | فرص العمل
-          </Link>
-
-          <div className="flex gap-4 items-center">
+    <div dir="rtl" className="min-h-screen bg-slate-50 font-sans text-slate-900">
+      {/* Navbar */}
+      <header className="bg-white/80 backdrop-blur-md border-b border-slate-100 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">🚀</span>
+            <span className="font-extrabold text-teal-700 text-xl tracking-tight">منصة تمكين</span>
+          </div>
+          <div className="flex items-center gap-4">
             <Link
-              href="/courses"
-              className="text-xs text-slate-600 hover:text-teal-600 font-bold"
+              href="/login"
+              className="text-xs font-bold text-slate-600 hover:text-teal-600 transition-colors px-4 py-2"
             >
-              الدورات التدريبية
+              تسجيل الدخول
             </Link>
-
-            <button
-              onClick={() =>
-                supabase.auth
-                  .signOut()
-                  .then(() => (window.location.href = '/'))
-              }
-              className="text-xs text-rose-600 font-bold"
+            <Link
+              href="/register"
+              className="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-sm transition-all"
             >
-              تسجيل الخروج
-            </button>
+              انضم إلينا
+            </Link>
           </div>
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-6 py-8 grid md:grid-cols-3 gap-8">
-
-        {/* Left Column: AI Profile Builder */}
-        <div className="md:col-span-1">
-          <div className="bg-white p-6 rounded-2xl border border-teal-100 shadow-sm sticky top-24">
-
-            <div className="flex items-center gap-2 mb-4">
-              <span className="text-xl">🤖</span>
-
-              <h3 className="font-bold text-sm text-slate-900">
-                المساعد الذكي لإعداد الملف
-              </h3>
-            </div>
-
-            <p className="text-xs text-slate-600 mb-4 leading-relaxed">
-              ادخلي مهاراتك وسيقوم المساعد بصياغة نبذة شخصية احترافية لملفكِ:
-            </p>
-
-            <div className="space-y-3">
-
-              {/* Skills */}
-              <div>
-                <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                  المهارات الرئيسية
-                </label>
-
-                <input
-                  type="text"
-                  placeholder="مثال: إدارة الوقت، التواصل، Word..."
-                  value={skills}
-                  onChange={(e) => setSkills(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 focus:outline-none focus:border-teal-600"
-                />
-              </div>
-
-              {/* Experience */}
-              <div>
-                <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                  مجال الخبرة / التخصص
-                </label>
-
-                <input
-                  type="text"
-                  placeholder="مثال: خدمة العملاء / المحاسبة..."
-                  value={experience}
-                  onChange={(e) => setExperience(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 focus:outline-none focus:border-teal-600"
-                />
-              </div>
-
-              {/* Generate Bio */}
-              <button
-                onClick={handleGenerateBio}
-                className="w-full bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold py-2.5 rounded-xl transition-all shadow-sm"
-              >
-                توليد النبذة الشخصية ✨
-              </button>
-
-              {/* Generated Bio */}
-              {generatedBio && (
-                <div className="mt-4 p-3 bg-teal-50 border border-teal-200 rounded-xl">
-                  <span className="block text-[10px] font-bold text-teal-800 mb-1">
-                    النتيجة المقترحة:
-                  </span>
-
-                  <p className="text-xs text-slate-700 leading-relaxed">
-                    {generatedBio}
-                  </p>
-                </div>
-              )}
-
-            </div>
+      {/* Hero Section */}
+      <section className="max-w-7xl mx-auto px-6 py-20 md:py-28 grid md:grid-cols-2 gap-12 items-center">
+        <div className="space-y-6 text-right">
+          <span className="inline-block bg-teal-50 text-teal-700 text-xs font-bold px-3 py-1 rounded-full">
+            ✨ مستقبل العمل المرن والمهني
+          </span>
+          <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 leading-tight">
+            تمكين الكفاءات وتسهيل الوصول إلى <span className="text-teal-600">الفرص الحقيقية</span>
+          </h1>
+          <p className="text-slate-600 text-sm md:text-base leading-relaxed">
+            منصة رائدة تهدف إلى ربط أصحاب العمل بالكفاءات المتميزة، وتوفير بيئة تدريبية وعملية متكاملة تدعم النمو المهني وتفتح آفاقاً جديدة.
+          </p>
+          <div className="flex flex-wrap gap-4 pt-2">
+            <Link
+              href="/register"
+              className="bg-slate-900 hover:bg-teal-600 text-white font-bold text-sm px-8 py-3.5 rounded-xl transition-all shadow-md"
+            >
+              استكشف الفرص الآن
+            </Link>
+            <Link
+              href="/courses"
+              className="bg-white border border-slate-200 hover:border-teal-600 text-slate-700 font-bold text-sm px-8 py-3.5 rounded-xl transition-all"
+            >
+              تصفح الدورات التدريبية
+            </Link>
           </div>
         </div>
 
-        {/* Right Column: Job Listings */}
-        <div className="md:col-span-2">
-
-          <h2 className="text-lg font-bold text-slate-900 mb-4">
-            💼 الفرص الوظيفية المتاحة
-          </h2>
-
-          {loadingJobs ? (
-            <p className="text-xs text-slate-600">
-              جاري تحميل الوظائف...
-            </p>
-          ) : jobs.length === 0 ? (
-            <div className="bg-white p-8 text-center rounded-2xl border border-slate-100 text-xs text-slate-600">
-              لا توجد وظائف معروضة حالياً.
+        <div className="bg-gradient-to-br from-teal-500/10 to-slate-200/50 p-8 rounded-3xl border border-teal-100/50 shadow-inner flex flex-col justify-center gap-6">
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
+            <span className="text-3xl">💼</span>
+            <div>
+              <h3 className="font-bold text-sm text-slate-900">فرص عمل مرنة ومتنوعة</h3>
+              <p className="text-xs text-slate-500">وظائف عن بُعد، هجينة، وميدانية تناسب قدراتك.</p>
             </div>
-          ) : (
-            <div className="space-y-4">
-              {jobs.map((job) => (
-                <div
-                  key={job.id}
-                  className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-bold text-slate-900 text-base">
-                        {job.title}
-                      </h3>
-
-                      <span className="bg-teal-50 text-teal-700 text-[10px] font-bold px-2.5 py-1 rounded-md">
-                        {job.work_location === 'remote'
-                          ? 'عن بُعد'
-                          : job.work_location === 'hybrid'
-                          ? 'هجين'
-                          : 'ميداني'}
-                      </span>
-                    </div>
-
-                    <p className="text-xs text-slate-600 mb-4">
-                      {job.city} • {job.description}
-                    </p>
-                  </div>
-
-                  <button
-                    onClick={() => handleApply(job.id)}
-                    className="self-end bg-slate-900 hover:bg-teal-600 text-white text-xs font-medium py-2 px-4 rounded-lg transition-colors"
-                  >
-                    التقديم المباشر
-                  </button>
-                </div>
-              ))}
+          </div>
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
+            <span className="text-3xl">🤖</span>
+            <div>
+              <h3 className="font-bold text-sm text-slate-900">مساعد ذكي لبناء الملف</h3>
+              <p className="text-xs text-slate-500">صياغة احترافية للنبذة الشخصية بضغطة زر واحدة.</p>
             </div>
-          )}
+          </div>
         </div>
+      </section>
 
-      </main>
+      {/* Footer */}
+      <footer className="border-t border-slate-100 bg-white py-8 mt-20 text-center text-xs text-slate-500">
+        جميعRights Reserved © 2026 منصة تمكين
+      </footer>
     </div>
   );
 }

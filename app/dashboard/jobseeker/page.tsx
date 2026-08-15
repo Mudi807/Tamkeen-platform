@@ -171,4 +171,4 @@ setGeneratedBio(bio);  };
       </main>
     </div>
   );
-}
+{}}
